@@ -17,6 +17,7 @@ interface NASAImage {
     href: string;
     rel: string;
   }>;
+  highResUrl?: string;
 }
 
 export const ImageGallery = () => {
@@ -32,7 +33,38 @@ export const ImageGallery = () => {
         `https://images-api.nasa.gov/search?q=${query}&media_type=image&page_size=24`
       );
       const data = await response.json();
-      setImages(data.collection.items || []);
+      
+      // Fetch higher resolution images from asset manifest
+      const enhancedImages = await Promise.all(
+        (data.collection.items || []).slice(0, 24).map(async (item: NASAImage) => {
+          try {
+            const assetResponse = await fetch(
+              `https://images-api.nasa.gov/asset/${item.data[0].nasa_id}`
+            );
+            const assetData = await assetResponse.json();
+            
+            // Find the highest quality image
+            const images = assetData.collection.items.filter((asset: any) =>
+              asset.href.match(/\.(jpg|jpeg|png)$/i)
+            );
+            const highResImage = images.find((img: any) => img.href.includes("~orig")) || 
+                               images.find((img: any) => img.href.includes("~large")) ||
+                               images[images.length - 1];
+            
+            return {
+              ...item,
+              highResUrl: highResImage?.href || item.links?.[0]?.href,
+            };
+          } catch {
+            return {
+              ...item,
+              highResUrl: item.links?.[0]?.href,
+            };
+          }
+        })
+      );
+      
+      setImages(enhancedImages);
     } catch (error) {
       console.error("Error fetching NASA images:", error);
       toast.error("Failed to load images. Please try again.");
@@ -55,10 +87,12 @@ export const ImageGallery = () => {
   const handleImageClick = (image: NASAImage) => {
     const imageData = image.data[0];
     const thumbnail = image.links?.[0]?.href || "";
+    const highRes = image.highResUrl || thumbnail;
     
     navigate("/viewer", {
       state: {
-        imageUrl: thumbnail,
+        imageUrl: highRes,
+        thumbnailUrl: thumbnail,
         title: imageData.title,
         description: imageData.description,
         nasaId: imageData.nasa_id,
@@ -67,7 +101,7 @@ export const ImageGallery = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4 pt-28">
       <div className="container mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

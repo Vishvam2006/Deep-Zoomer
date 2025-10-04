@@ -6,6 +6,7 @@ import { useState } from "react";
 
 interface LocationState {
   imageUrl: string;
+  thumbnailUrl?: string;
   title: string;
   description: string;
   nasaId: string;
@@ -67,28 +68,28 @@ export const ImageViewer = () => {
                 <Button
                   size="icon"
                   onClick={() => zoomIn()}
-                  className="bg-card/90 backdrop-blur hover:bg-card shadow-lg"
+                  className="bg-primary/20 backdrop-blur border border-primary/30 hover:bg-primary/30 hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all duration-300"
                 >
-                  <ZoomIn className="w-5 h-5" />
+                  <ZoomIn className="w-5 h-5 text-primary" />
                 </Button>
                 <Button
                   size="icon"
                   onClick={() => zoomOut()}
-                  className="bg-card/90 backdrop-blur hover:bg-card shadow-lg"
+                  className="bg-accent/20 backdrop-blur border border-accent/30 hover:bg-accent/30 hover:shadow-[0_0_20px_hsl(var(--accent)/0.4)] transition-all duration-300"
                 >
-                  <ZoomOut className="w-5 h-5" />
+                  <ZoomOut className="w-5 h-5 text-accent" />
                 </Button>
                 <Button
                   size="icon"
                   onClick={() => resetTransform()}
-                  className="bg-card/90 backdrop-blur hover:bg-card shadow-lg"
+                  className="bg-secondary backdrop-blur border border-border hover:bg-secondary/80 hover:shadow-lg transition-all duration-300"
                 >
                   <RotateCcw className="w-5 h-5" />
                 </Button>
                 <Button
                   size="icon"
                   onClick={toggleFullscreen}
-                  className="bg-card/90 backdrop-blur hover:bg-card shadow-lg"
+                  className="bg-secondary backdrop-blur border border-border hover:bg-secondary/80 hover:shadow-lg transition-all duration-300"
                 >
                   <Maximize2 className="w-5 h-5" />
                 </Button>
@@ -104,13 +105,16 @@ export const ImageViewer = () => {
                   alt={state.title}
                   className="max-w-full max-h-full object-contain select-none"
                   draggable={false}
+                  loading="eager"
                 />
               </TransformComponent>
 
               {/* Instructions overlay */}
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20 pointer-events-none">
-                <div className="bg-card/90 backdrop-blur rounded-lg px-4 py-2 text-sm text-muted-foreground">
-                  Scroll to zoom • Drag to pan • Double-click to zoom in
+                <div className="bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 backdrop-blur-lg rounded-lg px-6 py-3 border border-primary/30 shadow-[0_0_30px_hsl(var(--primary)/0.2)]">
+                  <p className="text-sm font-medium bg-gradient-to-r from-primary via-accent to-primary-glow bg-clip-text text-transparent">
+                    🔍 Scroll to zoom • ✋ Drag to pan • 🖱️ Double-click to zoom in
+                  </p>
                 </div>
               </div>
             </>
